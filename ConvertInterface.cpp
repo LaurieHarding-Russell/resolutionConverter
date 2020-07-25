@@ -1,9 +1,18 @@
 #include <iostream>
 #include <string>
 
-#include <boost/gil/gil_all.hpp>
+// FIXME, stupid libpng hack
+#define png_infopp_NULL (png_infopp)NULL
+#define int_p_NULL (int*)NULL
+// #include <boost/gil/gil_all.hpp>
 #include <boost/gil/extension/io/png_dynamic_io.hpp>
-#include <boost/gil/extension/io/jpeg_dynamic_io.hpp>
+
+#include <boost/gil/image.hpp>
+#include <boost/gil/typedefs.hpp>
+#include <boost/gil/extension/io/jpeg_io.hpp>
+#include <boost/gil/extension/numeric/sampler.hpp>
+#include <boost/gil/extension/numeric/resample.hpp>
+
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "boost/filesystem.hpp"
@@ -81,7 +90,7 @@ void convertion(Resolution resolution) {
 
     boost::filesystem::directory_iterator end_itr;
     for (boost::filesystem::directory_iterator itr(INPUT_LOCATION); itr != end_itr; ++itr ) {
-        std::string name = itr->path().filename;
+        std::string name = itr->path().string();
         ioService.post(boost::bind(convert, name, resolution));
     }
 
@@ -102,11 +111,13 @@ void convert(std::string filename, Resolution resolution) {
         printError("unsupported, call Laurie: " + filename);
     }
 
-    for(int i = 0; i != resolution.y; i++) {
-       for(int i = 0; i != resolution.x; i++) { 
-           boost::gil::rgba32_pixel_t pixel;
-       }
-    } 
+    boost::gil::resize_view(const_view(toConvert), view(converted), boost::gil::bilinear_sampler());
     
-    png_write_view(OUTPUT_LOCATION + "/" + filename, const_view(converted));
+    if (boost::algorithm::ends_with(filename, ".png")) {
+        printError("i should add support for png: " + filename);
+    } else if (boost::algorithm::ends_with(filename, ".jpeg")) {
+        boost::gil::jpeg_write_view(OUTPUT_LOCATION + "/" + filename, const_view(converted));
+    } else {
+        printError("unsupported, call Laurie: " + filename);
+    }
 }
