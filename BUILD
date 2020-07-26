@@ -1,20 +1,13 @@
-cc_binary(
-    name = "converter",
-    srcs = [
-        "ConvertInterface.cpp"
-    ],
+
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@my_deps//:requirements.bzl", "requirement")
+
+py_binary(
+  name = "converter",
+  srcs = ["converter.py"],
     deps = [
-        "@boost//:gil",
-        "@boost//:filesystem",
-        "@boost//:algorithm",
-        "@boost//:asio",
-        "@boost//:bind",
-        "@boost//:thread",    
+        requirement("python-resize-image"),
+        requirement("Pillow"),
     ],
-    linkopts = [
-        "-lpng", 
-        "-ljpeg",
-        "-lpthread"
-    ],
-    visibility = ["//visibility:public"]
+    data = glob(["from/*", "to/*"])
 )

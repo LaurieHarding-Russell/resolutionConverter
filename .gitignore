@@ -1,2 +1,5 @@
 bazel-*
 .vscode
+
+*.jpeg
+*.png

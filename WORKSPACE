@@ -1,11 +1,26 @@
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-http_archive(
-    name = "com_github_nelhage_rules_boost",
-    urls = ["https://github.com/nelhage/rules_boost/archive/ccc90b00c2fae7267cc25b77199fb992acd5e799.zip"],
-    strip_prefix = "rules_boost-ccc90b00c2fae7267cc25b77199fb992acd5e799",
-    sha256 = "68c67476f8e6257cb858a2378a4663a54690ed64562db2c3be4702c537e1edd8"
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
+    name = "rules_python",
+    remote = "https://github.com/bazelbuild/rules_python.git",
+    commit = "38f86fb55b698c51e8510c807489c9f4e047480e",
 )
 
-load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
-boost_deps()
+
+load("@rules_python//python:repositories.bzl", "py_repositories")
+py_repositories()
+load("@rules_python//python:pip.bzl", "pip_repositories", "pip3_import")
+
+pip_repositories()
+
+# This rule translates the specified requirements.txt into
+# @my_deps//:requirements.bzl, which itself exposes a pip_install method.
+pip3_import(
+   name = "my_deps",
+   requirements = "//:requirments.txt",
+)
+
+load("@my_deps//:requirements.bzl", "pip_install")
+pip_install()
+
