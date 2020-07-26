@@ -16,8 +16,10 @@ for imageName in glob.glob("./from/*"):
     print(imageName)
     with open(imageName, 'r+b') as f:
         with Image.open(imageName) as image:
-            newImage = resizeimage.resize_cover(image, [x, y])
+            newImage = image.resize([x, y], Image.ANTIALIAS)
             newImage.save("./to/" + imageName[len("./from/"):], image.format)
 
+path = os.getcwd()
+print("In " + path)
 for imageName in glob.glob("./to/*"): 
     print("converted: " + imageName)
